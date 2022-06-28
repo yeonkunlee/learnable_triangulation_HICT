@@ -1,0 +1,93 @@
+title: "human36m_vol_softmax_EXTENDED_USE_HIPCENTER_NODAMAGE_W1_from_EPOCH09_512x512"
+
+kind: "human36m"
+vis_freq: 1000
+vis_n_elements: 10
+
+image_shape: [512, 512]
+
+opt:
+  criterion: "MAE"
+
+  use_volumetric_ce_loss: true
+  volumetric_ce_loss_weight: 0.01
+
+  n_objects_per_epoch: 15000
+  n_epochs: 9999
+
+  batch_size: 5
+  val_batch_size: 10
+
+  lr: 0.0001
+  process_features_lr: 0.001
+  volume_net_lr: 0.001
+  keypoint_head_lr: 0.0001
+
+  scale_keypoints_3d: 0.1
+
+model:
+  name: "vol"
+  kind: "mpii"
+  volume_aggregation_method: "softmax"
+
+  # init weight <- false
+  init_weights: true
+  checkpoint: "./logs_extended/human36m_vol_softmax_EXTENDED_25Joints_512x512_HEATMAPCONST_W100_VolumetricTriangulationNet_25Joints_512x512@19.11.2021-17:47:35/checkpoints/0009/weights.pth"
+  #"./data/pretrained/body/model_25joints_512x512_weights.pth"
+  
+
+  use_gt_pelvis: false
+
+  cuboid_side: 2500.0
+
+  volume_size: 64
+  volume_multiplier: 1.0
+  volume_softmax: true
+
+  heatmap_softmax: true
+  heatmap_multiplier: 100.0
+
+  backbone:
+    name: "resnet152"
+    style: "simple"
+
+    init_weights: false
+    checkpoint: "./data/pretrained/human36m/pose_resnet_4.5_pixels_human36m.pth"
+
+    num_joints: 25
+    num_layers: 152
+
+dataset:
+  kind: "human36m"
+  train:
+    h36m_root: "/datasets/human3.6m_LT/processed/"
+    labels_path: "/datasets/human3.6m_LT/extra/human36m-multiview-labels-GTbboxes_EXTENDEDJOINTS.npy"
+    pred_results_path: "./logs/eval_human36m_alg_DONOTSHUFFLE_AlgebraicTriangulationNet@07.07.2021-20:59:01/checkpoints/0000/results.pkl"
+    with_damaged_actions: true
+    undistort_images: true
+
+    scale_bbox: 1.2
+
+    shuffle: true
+    randomize_n_views: false
+    min_n_views: null
+    max_n_views: null
+    num_workers: 5
+    
+    #option_384x288: true
+
+  val:
+    h36m_root: "/datasets/human3.6m_LT/processed/"
+    labels_path: "/datasets/human3.6m_LT/extra/human36m-multiview-labels-GTbboxes_EXTENDEDJOINTS.npy"
+    pred_results_path: "./logs/eval_human36m_alg_DONOTSHUFFLE_NODAMAGED_AlgebraicTriangulationNet@18.11.2021-10:15:16/checkpoints/0000/results.pkl"
+
+    with_damaged_actions: false
+    undistort_images: true
+
+    scale_bbox: 1.2
+    shuffle: false
+    randomize_n_views: false
+    min_n_views: null
+    max_n_views: null
+    num_workers: 10
+    retain_every_n_frames_in_test: 1

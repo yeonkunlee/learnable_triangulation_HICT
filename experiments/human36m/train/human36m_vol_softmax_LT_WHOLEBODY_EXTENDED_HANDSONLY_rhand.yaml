@@ -1,0 +1,96 @@
+title: "human36m_vol_softmax_WHOLEBODY_EXTENDED_HANDSONLY_256x256_SJ_pretrained"
+
+kind: "human36m"
+vis_freq: 1000
+vis_n_elements: 10
+
+image_shape: [256, 256]
+
+opt:
+  criterion: "MAE"
+
+  use_volumetric_ce_loss: true
+  volumetric_ce_loss_weight: 0.01
+
+  n_objects_per_epoch: 15000
+  n_epochs: 9999
+
+  batch_size: 5
+  val_batch_size: 10
+
+  lr: 0.0001
+  process_features_lr: 0.001
+  volume_net_lr: 0.001
+  #ocr_2d_transformer_lr: 0.001
+  keypoint_head_lr: 0.0001
+  scale_keypoints_3d: 0.1
+
+model:
+  name: "vol"
+  kind: "mpii"
+  volume_aggregation_method: "softmax"
+
+  # init weight <- false
+  init_weights: false
+  #checkpoint: "./data/pretrained/human36m/last_checkpoint_paper/weights.pth"
+  is_righthand: true
+
+  use_gt_pelvis: false
+
+  cuboid_side: 2500.0
+
+  volume_size: 64
+  volume_multiplier: 1.0
+  volume_softmax: true
+
+  heatmap_softmax: true
+  heatmap_multiplier: 100.0
+
+  backbone:
+    name: "resnet152"
+    style: "simple"
+
+    init_weights: true
+    checkpoint: "./data/pretrained/human36m/pose_resnet_4.5_pixels_human36m.pth"
+    #25 <- 3
+    num_joints: 3
+    num_layers: 152
+
+dataset:
+  kind: "human36m"
+  train:
+    h36m_root: "/datasets/human3.6m_LT/processed/"
+    labels_path: "/datasets/human3.6m_LT/extra/human36m-multiview-labels-GTbboxes_HANDS_righthand_SJ_1.npy"
+    #"/datasets/human3.6m_LT/extra/human36m-multiview-labels-GTbboxes_HANDS_righthand_SJ_1.npy"
+    #"/datasets/human3.6m_LT/extra/human36m-multiview-labels-GTbboxes_HANDS_righthand.npy"
+    pred_results_path: "./logs/eval_human36m_alg_DONOTSHUFFLE_AlgebraicTriangulationNet@07.07.2021-20:59:01/checkpoints/0000/results.pkl"
+    #use gt pelvis...
+    with_damaged_actions: true
+    undistort_images: true
+    
+    scale_bbox: 1.2
+
+    shuffle: true
+    randomize_n_views: false
+    min_n_views: null
+    max_n_views: null
+    num_workers: 5
+    
+    #option_384x288: true
+
+  val:
+    h36m_root: "/datasets/human3.6m_LT/processed/"
+    labels_path: "/datasets/human3.6m_LT/extra/human36m-multiview-labels-GTbboxes_HANDS_righthand_SJ_1.npy"
+    #"/datasets/human3.6m_LT/extra/human36m-multiview-labels-GTbboxes_HANDS_righthand.npy"
+    pred_results_path: "./logs/eval_human36m_alg_AlgebraicTriangulationNet@02.07.2021-19:36:04/checkpoints/0000/results.pkl"
+
+    with_damaged_actions: true
+    undistort_images: true
+
+    scale_bbox: 1.2
+    shuffle: false
+    randomize_n_views: false
+    min_n_views: null
+    max_n_views: null
+    num_workers: 10
+    retain_every_n_frames_in_test: 1
