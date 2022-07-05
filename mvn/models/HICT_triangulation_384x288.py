@@ -180,7 +180,7 @@ class VolumetricTriangulationNet_384x288(nn.Module):
         
 
 
-    def forward(self, images, proj_matricies, batch):
+    def forward(self, images, batch):
         device = images.device
         batch_size, n_views = images.shape[:2]
         # reshape for backbone forward
